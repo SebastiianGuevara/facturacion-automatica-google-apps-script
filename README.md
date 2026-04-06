@@ -46,11 +46,14 @@ automáticamente con un solo clic desde Google Sheets.
 ### Registro de Facturas
 ![Registro](screenshots/05-registro-facturas.png)
 
+### La factura se almacena en google Drive
+![Guardado](screenshots/05.5-Guardado-factura.png)
+
 ### Validaciones en las secciones
-![Validaciones](06-validaciones.png)
+![Validaciones](screenshots/06-validaciones.png)
 
 ### Boton visual para generar la factura
-![Boton Visual](07-boton-visual.png)
+![Boton Visual](screenshots/07-boton-visual.png)
 
 ---
 
