@@ -6,13 +6,19 @@ const ID_CARPETA_TEMPORAL = CONFIG.ID_CARPETA_TEMPORAL;
 
 // Crea el menú personalizado al abrir el Sheets
 function onOpen() {
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('📄 Facturación')
-    .addItem('✉️ Generar factura (fila seleccionada)', 'generarFacturaFilaActiva')
-    .addItem('📦 Generar TODAS las facturas', 'generarTodasLasFacturas')
-    .addSeparator()
-    .addItem('📋 Ver registro de facturas', 'verRegistro')
-    .addToUi();
+  try {
+    const ui = SpreadsheetApp.getUi();
+    ui.createMenu('📄 Facturación')
+      .addItem('✉️ Generar factura (fila seleccionada)', 'generarFacturaFilaActiva')
+      .addItem('📦 Generar TODAS las facturas', 'generarTodasLasFacturas')
+      .addSeparator()
+      .addItem('📋 Ver registro de facturas', 'verRegistro')
+      .addSeparator()
+      .addItem('⚙️ Configurar validaciones', 'configurarHojaClientes')
+      .addToUi();
+  } catch(e) {
+    Logger.log('Error en onOpen: ' + e.message);
+  }
 }
 
 
@@ -63,8 +69,12 @@ function generarTodasLasFacturas() {
 
 
 // ── Extrae los datos de una fila del Sheets
+// ── Extrae los datos de una fila del Sheets
 function obtenerDatosFila(hoja, fila) {
-  const numeroFactura = `FAC-${new Date().getFullYear()}-${String(fila).padStart(4, '0')}`;
+  // Número auto-incremental basado en el registro de facturas
+  const hojaRegistro  = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Registro-Facturas');
+  const totalFacturas = Math.max(hojaRegistro.getLastRow() - 1, 0); // Resta el encabezado
+  const numeroFactura = `FAC-${new Date().getFullYear()}-${String(totalFacturas + 1).padStart(4, '0')}`;
   const fecha         = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'dd/MM/yyyy');
 
   return {
@@ -154,4 +164,58 @@ function verRegistro() {
   SpreadsheetApp.getActiveSpreadsheet()
     .getSheetByName('Registro-Facturas')
     .activate();
+}
+
+// ── Configura validaciones y formato de la hoja Clientes
+function configurarHojaClientes() {
+  const ss   = SpreadsheetApp.getActiveSpreadsheet();
+  const hoja = ss.getSheetByName('Clientes');
+
+  // ── Menú desplegable para Ciudad (columna C)
+  const ciudades = ['Bogotá', 'Medellín', 'Cali', 'Barranquilla', 'Cartagena',
+                    'Bucaramanga', 'Pereira', 'Manizales', 'Santa Marta', 'Otra'];
+  const reglaCiudad = SpreadsheetApp.newDataValidation()
+    .requireValueInList(ciudades, true)
+    .setAllowInvalid(false)
+    .setHelpText('Selecciona una ciudad de la lista.')
+    .build();
+  hoja.getRange('C2:C1000').setDataValidation(reglaCiudad);
+
+  // ── Menú desplegable para Descripción Servicio (columna D)
+  const servicios = ['Desarrollo web', 'Diseño logo', 'Consultoría SEO',
+                     'App móvil', 'Mantenimiento web', 'Diseño UI/UX',
+                     'Automatización', 'Otro'];
+  const reglaServicio = SpreadsheetApp.newDataValidation()
+    .requireValueInList(servicios, true)
+    .setAllowInvalid(false)
+    .setHelpText('Selecciona un servicio de la lista.')
+    .build();
+  hoja.getRange('D2:D1000').setDataValidation(reglaServicio);
+
+  // ── Validar que Email tenga formato correcto (columna B)
+  const reglaEmail = SpreadsheetApp.newDataValidation()
+    .requireTextIsEmail()
+    .setAllowInvalid(false)
+    .setHelpText('Ingresa un email válido.')
+    .build();
+  hoja.getRange('B2:B1000').setDataValidation(reglaEmail);
+
+  // ── Validar que Cantidad sea número entre 1 y 100 (columna E)
+  const reglaCantidad = SpreadsheetApp.newDataValidation()
+    .requireNumberBetween(1, 100)
+    .setAllowInvalid(false)
+    .setHelpText('Ingresa un número entre 1 y 100.')
+    .build();
+  hoja.getRange('E2:E1000').setDataValidation(reglaCantidad);
+
+  // ── Formato de moneda en columnas F y G
+  hoja.getRange('F2:G1000').setNumberFormat('$#,##0');
+
+  // ── Formato de encabezados
+  hoja.getRange('A1:G1')
+    .setBackground('#1a73e8')
+    .setFontColor('#ffffff')
+    .setFontWeight('bold');
+
+  SpreadsheetApp.getUi().alert('✅ Validaciones configuradas correctamente.');
 }
