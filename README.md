@@ -13,6 +13,9 @@ automáticamente con un solo clic desde Google Sheets.
 - Envía las facturas por Gmail con el PDF adjunto
 - Registra todos los envíos en un log automático
 - Se puede programar para ejecutarse automáticamente cada mes
+- Validaciones automáticas en columnas con menús desplegables
+- Botón visual dentro del Sheets para generar facturas con un clic
+- Número de factura auto-incremental basado en el registro
 
 ---
 
@@ -42,6 +45,12 @@ automáticamente con un solo clic desde Google Sheets.
 
 ### Registro de Facturas
 ![Registro](screenshots/05-registro-facturas.png)
+
+### Validaciones en las secciones
+![Validaciones](06-validaciones.png)
+
+### Boton visual para generar la factura
+![Boton Visual](07-boton-visual.png)
 
 ---
 
